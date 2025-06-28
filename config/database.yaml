@@ -1,0 +1,22 @@
+# Database Configuration
+vector_db:
+  provider: "chromadb"
+  path: "../data/vector_db"
+  collection_name: "n8n_knowledge"
+  embedding_model: "text-embedding-ada-002"
+
+knowledge_db:
+  provider: "sqlite"
+  path: "../data/knowledge.db"
+  tables:
+    - documents
+    - chunks
+    - metadata
+    - updates
+
+cache:
+  provider: "redis"
+  host: "localhost"
+  port: 6379
+  db: 0
+  ttl: 3600

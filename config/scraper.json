@@ -1,0 +1,56 @@
+{
+  "database": {
+    "url": "postgresql://root:root@localhost:5432/n8n_scraper",
+    "pool_size": 10,
+    "max_overflow": 20,
+    "pool_timeout": 30,
+    "pool_recycle": 3600,
+    "echo": false
+  },
+  "vector_store": {
+    "enabled": true,
+    "backend": "numpy",
+    "dimension": 384,
+    "index_type": "flat",
+    "metric": "cosine",
+    "storage_path": null
+  },
+  "cache": {
+    "enabled": true,
+    "backend": "memory",
+    "ttl": 3600,
+    "max_size": 1000,
+    "redis_url": "redis://localhost:6379",
+    "file_path": null
+  },
+  "logging": {
+    "level": "INFO",
+    "file": null,
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "max_bytes": 10485760,
+    "backup_count": 5
+  },
+  "scraping": {
+    "max_pages": 100,
+    "max_depth": 3,
+    "delay_range": [
+      1.0,
+      2.0
+    ],
+    "max_concurrent": 5,
+    "timeout": 30,
+    "retries": 3,
+    "user_agent": "n8n-scraper/1.0",
+    "respect_robots_txt": true
+  },
+  "processing": {
+    "min_content_length": 100,
+    "max_content_length": 1000000,
+    "quality_threshold": 0.5,
+    "enable_chunking": true,
+    "chunk_size": 1000,
+    "chunk_overlap": 200,
+    "enable_embeddings": true,
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2"
+  }
+}

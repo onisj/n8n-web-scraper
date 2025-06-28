@@ -1,0 +1,42 @@
+# Scheduler Configuration
+schedules:
+  daily_update:
+    cron: "0 2 * * *"  # 2 AM daily
+    job: "incremental_update"
+    enabled: true
+
+  weekly_full_scrape:
+    cron: "0 3 * * 0"  # 3 AM every Sunday
+    job: "full_scrape"
+    enabled: true
+
+  monthly_cleanup:
+    cron: "0 4 1 * *"  # 4 AM first day of month
+    job: "cleanup_old_data"
+    enabled: true
+
+  backup:
+    cron: "0 1 * * *"  # 1 AM daily
+    job: "backup_data"
+    enabled: true
+
+jobs:
+  incremental_update:
+    description: "Check for documentation updates"
+    timeout: 1800  # 30 minutes
+    retry_count: 3
+
+  full_scrape:
+    description: "Complete documentation scrape"
+    timeout: 7200  # 2 hours
+    retry_count: 2
+
+  cleanup_old_data:
+    description: "Clean up old backups and logs"
+    timeout: 600  # 10 minutes
+    retry_count: 1
+
+  backup_data:
+    description: "Backup knowledge base"
+    timeout: 1200  # 20 minutes
+    retry_count: 2
