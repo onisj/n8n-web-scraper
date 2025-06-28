@@ -1,0 +1,320 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: n8n-scraper-api
+  namespace: n8n-scraper
+  labels:
+    app.kubernetes.io/name: n8n-scraper
+    app.kubernetes.io/component: serviceaccount
+    app.kubernetes.io/version: "1.0.0"
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: n8n-scraper-worker
+  namespace: n8n-scraper
+  labels:
+    app.kubernetes.io/name: n8n-scraper
+    app.kubernetes.io/component: serviceaccount
+    app.kubernetes.io/version: "1.0.0"
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: n8n-scraper-monitoring
+  namespace: n8n-scraper
+  labels:
+    app.kubernetes.io/name: n8n-scraper
+    app.kubernetes.io/component: serviceaccount
+    app.kubernetes.io/version: "1.0.0"
+automountServiceAccountToken: true
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: n8n-scraper-api-role
+  namespace: n8n-scraper
+  labels:
+    app.kubernetes.io/name: n8n-scraper
+    app.kubernetes.io/component: rbac
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["metrics.k8s.io"]
+  resources: ["pods", "nodes"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: n8n-scraper-worker-role
+  namespace: n8n-scraper
+  labels:
+    app.kubernetes.io/name: n8n-scraper
+    app.kubernetes.io/component: rbac
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["create", "patch"]
+- apiGroups: ["batch"]
+  resources: ["jobs", "cronjobs"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: n8n-scraper-monitoring-role
+  namespace: n8n-scraper
+  labels:
+    app.kubernetes.io/name: n8n-scraper
+    app.kubernetes.io/component: rbac
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "configmaps"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets", "statefulsets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["autoscaling"]
+  resources: ["horizontalpodautoscalers"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["metrics.k8s.io"]
+  resources: ["pods", "nodes"]
+  verbs: ["get", "list"]
+- apiGroups: ["custom.metrics.k8s.io"]
+  resources: ["*"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: n8n-scraper-api-rolebinding
+  namespace: n8n-scraper
+  labels:
+    app.kubernetes.io/name: n8n-scraper
+    app.kubernetes.io/component: rbac
+subjects:
+- kind: ServiceAccount
+  name: n8n-scraper-api
+  namespace: n8n-scraper
+roleRef:
+  kind: Role
+  name: n8n-scraper-api-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: n8n-scraper-worker-rolebinding
+  namespace: n8n-scraper
+  labels:
+    app.kubernetes.io/name: n8n-scraper
+    app.kubernetes.io/component: rbac
+subjects:
+- kind: ServiceAccount
+  name: n8n-scraper-worker
+  namespace: n8n-scraper
+roleRef:
+  kind: Role
+  name: n8n-scraper-worker-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: n8n-scraper-monitoring-rolebinding
+  namespace: n8n-scraper
+  labels:
+    app.kubernetes.io/name: n8n-scraper
+    app.kubernetes.io/component: rbac
+subjects:
+- kind: ServiceAccount
+  name: n8n-scraper-monitoring
+  namespace: n8n-scraper
+roleRef:
+  kind: Role
+  name: n8n-scraper-monitoring-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: n8n-scraper-cluster-reader
+  labels:
+    app.kubernetes.io/name: n8n-scraper
+    app.kubernetes.io/component: rbac
+rules:
+- apiGroups: [""]
+  resources: ["nodes", "nodes/metrics", "nodes/stats"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["metrics.k8s.io"]
+  resources: ["nodes", "pods"]
+  verbs: ["get", "list"]
+- apiGroups: ["custom.metrics.k8s.io"]
+  resources: ["*"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: n8n-scraper-cluster-reader-binding
+  labels:
+    app.kubernetes.io/name: n8n-scraper
+    app.kubernetes.io/component: rbac
+subjects:
+- kind: ServiceAccount
+  name: n8n-scraper-monitoring
+  namespace: n8n-scraper
+roleRef:
+  kind: ClusterRole
+  name: n8n-scraper-cluster-reader
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: n8n-scraper-network-policy
+  namespace: n8n-scraper
+  labels:
+    app.kubernetes.io/name: n8n-scraper
+    app.kubernetes.io/component: security
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: n8n-scraper
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: n8n-scraper
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 8000
+    - protocol: TCP
+      port: 3000
+    - protocol: TCP
+      port: 9090
+  - from: []
+    ports:
+    - protocol: TCP
+      port: 80
+    - protocol: TCP
+      port: 443
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: n8n-scraper
+    ports:
+    - protocol: TCP
+      port: 8000
+    - protocol: TCP
+      port: 6379
+    - protocol: TCP
+      port: 5432
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 80
+    - protocol: TCP
+      port: 443
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: TCP
+      port: 443
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: chromadb-network-policy
+  namespace: n8n-scraper
+  labels:
+    app.kubernetes.io/name: chromadb
+    app.kubernetes.io/component: security
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: chromadb
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: n8n-scraper
+    ports:
+    - protocol: TCP
+      port: 8000
+  egress:
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: redis-network-policy
+  namespace: n8n-scraper
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/component: security
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: n8n-scraper
+    ports:
+    - protocol: TCP
+      port: 6379
+  egress:
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53

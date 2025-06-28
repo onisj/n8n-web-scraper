@@ -1,0 +1,693 @@
+# Default values for n8n-scraper
+# This is a YAML-formatted file.
+
+# Global configuration
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+  
+# Application configuration
+app:
+  name: n8n-scraper
+  version: "1.0.0"
+  environment: production
+  
+# API service configuration
+api:
+  enabled: true
+  replicaCount: 3
+  
+  image:
+    repository: n8n-scraper
+    tag: "latest"
+    pullPolicy: Always
+  
+  service:
+    type: ClusterIP
+    port: 8000
+    targetPort: 8000
+    annotations: {}
+  
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+  
+  env:
+    LOG_LEVEL: INFO
+    WORKERS: "4"
+    ENVIRONMENT: production
+  
+  nodeSelector: {}
+  tolerations: []
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+              - n8n-scraper
+            - key: app.kubernetes.io/component
+              operator: In
+              values:
+              - api
+          topologyKey: kubernetes.io/hostname
+
+# Worker service configuration
+worker:
+  enabled: true
+  replicaCount: 2
+  
+  image:
+    repository: n8n-scraper
+    tag: "latest"
+    pullPolicy: Always
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 85
+  
+  env:
+    LOG_LEVEL: INFO
+    WORKER_TYPE: scraper
+    ENVIRONMENT: production
+  
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Frontend service configuration
+frontend:
+  enabled: true
+  replicaCount: 2
+  
+  image:
+    repository: n8n-scraper-frontend
+    tag: "latest"
+    pullPolicy: Always
+  
+  service:
+    type: ClusterIP
+    port: 3000
+    targetPort: 3000
+    annotations: {}
+  
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 512Mi
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 60
+    targetMemoryUtilizationPercentage: 70
+  
+  env:
+    NODE_ENV: production
+  
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Real-time collaboration service
+realtime:
+  enabled: true
+  replicaCount: 2
+  
+  image:
+    repository: n8n-scraper-realtime
+    tag: "latest"
+    pullPolicy: Always
+  
+  service:
+    type: ClusterIP
+    port: 8001
+    targetPort: 8001
+    annotations: {}
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+  
+  env:
+    LOG_LEVEL: INFO
+    ENVIRONMENT: production
+  
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# ChromaDB configuration
+chromadb:
+  enabled: true
+  replicaCount: 1
+  
+  image:
+    repository: chromadb/chroma
+    tag: "0.4.15"
+    pullPolicy: IfNotPresent
+  
+  service:
+    type: ClusterIP
+    port: 8000
+    targetPort: 8000
+  
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  
+  persistence:
+    enabled: true
+    storageClass: ""
+    accessMode: ReadWriteOnce
+    size: 20Gi
+  
+  env:
+    CHROMA_SERVER_HOST: "0.0.0.0"
+    CHROMA_SERVER_HTTP_PORT: "8000"
+    CHROMA_DB_IMPL: "duckdb+parquet"
+  
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Redis configuration (if not using external)
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      storageClass: ""
+      size: 5Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
+# PostgreSQL configuration (if not using external)
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "changeme"
+    username: "n8n_scraper"
+    password: "changeme"
+    database: "n8n_scraper"
+  primary:
+    persistence:
+      enabled: true
+      storageClass: ""
+      size: 50Gi
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/websocket-services: "n8n-scraper-api,n8n-scraper-realtime"
+  
+  hosts:
+    - host: n8n-scraper.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: frontend
+    - host: api.n8n-scraper.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: api
+    - host: realtime.n8n-scraper.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: realtime
+  
+  tls:
+    - secretName: n8n-scraper-tls
+      hosts:
+        - n8n-scraper.example.com
+        - api.n8n-scraper.example.com
+        - realtime.n8n-scraper.example.com
+
+# Persistence configuration
+persistence:
+  enabled: true
+  storageClass: ""
+  accessMode: ReadWriteMany
+  size: 10Gi
+  annotations: {}
+
+# Security configuration
+security:
+  podSecurityPolicy:
+    enabled: false
+  
+  networkPolicy:
+    enabled: true
+    ingress:
+      enabled: true
+    egress:
+      enabled: true
+  
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: ""
+  
+  rbac:
+    create: true
+
+# Configuration management
+config:
+  # Application settings
+  app:
+    name: "n8n-scraper"
+    version: "1.0.0"
+    environment: "production"
+    debug: false
+    logLevel: "info"
+  
+  # Server settings
+  server:
+    host: "0.0.0.0"
+    port: 3000
+    workers: 4
+    timeout: 30
+  
+  # Database settings
+  database:
+    poolSize: 10
+    maxOverflow: 20
+    poolTimeout: 30
+    poolRecycle: 3600
+  
+  # Vector database settings
+  vectorDb:
+    host: "chromadb"
+    port: 8000
+    collection: "n8n_docs"
+    persistDirectory: "/data/chroma"
+  
+  # Cache settings
+  cache:
+    type: "redis"
+    ttl: 3600
+    maxSize: 1000
+  
+  # AI/ML settings
+  ai:
+    modelName: "gpt-3.5-turbo"
+    maxTokens: 4000
+    temperature: 0.7
+    batchSize: 10
+    enableCaching: true
+  
+  # Scraping settings
+  scraping:
+    delay: 1
+    timeout: 30
+    retries: 3
+    concurrentRequests: 5
+    userAgent: "n8n-scraper/1.0.0"
+  
+  # Monitoring settings
+  monitoring:
+    metricsEnabled: true
+    metricsPort: 9090
+    healthCheckInterval: 30
+  
+  # Logging settings
+  logging:
+    level: "info"
+    format: "json"
+    file: "/var/log/n8n-scraper.log"
+    maxSize: "100MB"
+    backupCount: 5
+  
+  # Security settings
+  security:
+    corsOrigins: "*"
+    rateLimitRequests: 100
+    rateLimitWindow: 60
+    sessionTimeout: 3600
+  
+  # Real-time settings
+  realtime:
+    enabled: true
+    port: 3001
+    corsOrigins: "*"
+    pingTimeout: 60
+    pingInterval: 25
+  
+  # Automation settings
+  automation:
+    enabled: true
+    schedule: "0 */6 * * *"
+    maxConcurrent: 3
+  
+  # Backup settings
+  backup:
+    enabled: true
+    schedule: "0 2 * * *"
+    retentionDays: 30
+    compression: true
+  
+  # Performance settings
+  performance:
+    cacheEnabled: true
+    parallelProcessing: true
+    maxWorkers: 4
+    batchSize: 100
+  
+  # Feature flags
+  featureFlags:
+    aiProcessing: true
+    realTime: true
+    analytics: true
+    backup: true
+    monitoring: true
+  
+  # External services
+  externalServices:
+    n8nUrl: "http://n8n:5678"
+    webhookTimeout: 30
+    apiTimeout: 30
+  
+  # Data processing
+  dataProcessing:
+    chunkSize: 1000
+    overlapSize: 200
+    maxFileSize: "10MB"
+    supportedFormats: "pdf,txt,docx,html"
+  
+  # API settings
+  api:
+    version: "v1"
+    prefix: "/api"
+    docsEnabled: true
+    maxRequestSize: "10MB"
+
+# Secrets configuration
+secrets:
+  # External secrets operator
+  externalSecrets:
+    enabled: false
+    secretStore:
+      name: "vault-backend"
+      kind: "SecretStore"
+  
+  # Database URLs
+  databaseUrl: "postgresql://user:password@postgres:5432/n8n_scraper"
+  redisUrl: "redis://redis:6379/0"
+  chromadbUrl: "http://chromadb:8000"
+  
+  # AI/ML API Keys
+  openaiApiKey: "sk-YOUR_OPENAI_API_KEY_HERE"
+  huggingfaceApiKey: "hf_YOUR_HUGGINGFACE_API_KEY_HERE"
+  anthropicApiKey: "sk-ant-YOUR_ANTHROPIC_API_KEY_HERE"
+  
+  # Authentication secrets
+  jwtSecret: "YOUR_JWT_SECRET_KEY_HERE"
+  sessionSecret: "YOUR_SESSION_SECRET_KEY_HERE"
+  encryptionKey: "YOUR_ENCRYPTION_KEY_HERE"
+  
+  # Webhook URLs
+  n8nWebhookUrl: "http://n8n:5678/webhook/YOUR_WEBHOOK_ID"
+  slackWebhookUrl: "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+  discordWebhookUrl: "https://discord.com/api/webhooks/YOUR/DISCORD/WEBHOOK"
+  
+  # Cloud storage credentials
+  awsAccessKeyId: "YOUR_AWS_ACCESS_KEY_ID"
+  awsSecretAccessKey: "YOUR_AWS_SECRET_ACCESS_KEY"
+  gcpServiceAccountKey: "YOUR_GCP_SERVICE_ACCOUNT_JSON_KEY"
+  azureStorageAccountKey: "YOUR_AZURE_STORAGE_ACCOUNT_KEY"
+  
+  # Monitoring credentials
+  prometheusAuthToken: "YOUR_PROMETHEUS_AUTH_TOKEN"
+  grafanaAdminPassword: "YOUR_GRAFANA_ADMIN_PASSWORD"
+  
+  # Email credentials
+  smtpPassword: "YOUR_SMTP_PASSWORD"
+  
+  # Backup encryption
+  backupEncryptionKey: "YOUR_BACKUP_ENCRYPTION_KEY"
+
+# Monitoring configuration
+monitoring:
+  enabled: true
+  
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      interval: 30s
+      scrapeTimeout: 10s
+      labels: {}
+      annotations: {}
+  
+  grafana:
+    enabled: true
+    adminPassword: "admin"
+    dashboards:
+      enabled: true
+      configMapName: "n8n-scraper-dashboards"
+  
+  alerts:
+    enabled: true
+    rules:
+      - name: "high-cpu-usage"
+        expr: "rate(container_cpu_usage_seconds_total[5m]) > 0.8"
+        for: "5m"
+        labels:
+          severity: "warning"
+        annotations:
+          summary: "High CPU usage detected"
+      - name: "high-memory-usage"
+        expr: "container_memory_usage_bytes / container_spec_memory_limit_bytes > 0.9"
+        for: "5m"
+        labels:
+          severity: "critical"
+        annotations:
+          summary: "High memory usage detected"
+
+# Backup configuration
+backup:
+  enabled: true
+  schedule: "0 3 * * 0"  # Weekly on Sunday at 3 AM
+  retention: 30  # days
+  
+  storage:
+    type: "s3"  # s3, gcs, azure
+    bucket: "n8n-scraper-backups"
+    region: "us-west-2"
+    
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+# Testing configuration
+testing:
+  enabled: false
+  
+  image:
+    repository: n8n-scraper-test
+    tag: "latest"
+    pullPolicy: Always
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+# Development configuration
+development:
+  enabled: false
+  
+  hotReload: true
+  debugMode: true
+  
+  volumes:
+    - name: source-code
+      hostPath:
+        path: /path/to/source
+        type: Directory
+  
+  volumeMounts:
+    - name: source-code
+      mountPath: /app
+
+# External services configuration
+externalServices:
+  # External database
+  database:
+    enabled: false
+    host: ""
+    port: 5432
+    database: ""
+    username: ""
+    password: ""
+  
+  # External Redis
+  redis:
+    enabled: false
+    host: ""
+    port: 6379
+    database: 0
+    password: ""
+  
+  # External vector database
+  vectorDb:
+    enabled: false
+    host: ""
+    port: 8000
+    collection: "n8n_docs"
+
+# Resource quotas
+resourceQuota:
+  enabled: true
+  hard:
+    requests.cpu: "4"
+    requests.memory: "8Gi"
+    limits.cpu: "8"
+    limits.memory: "16Gi"
+    persistentvolumeclaims: "10"
+    services: "10"
+    secrets: "20"
+    configmaps: "20"
+
+# Limit ranges
+limitRange:
+  enabled: true
+  limits:
+    - default:
+        cpu: "500m"
+        memory: "512Mi"
+      defaultRequest:
+        cpu: "100m"
+        memory: "128Mi"
+      type: Container
+    - default:
+        storage: "1Gi"
+      type: PersistentVolumeClaim
+
+# Pod security standards
+podSecurity:
+  enabled: true
+  enforce: "restricted"
+  audit: "restricted"
+  warn: "restricted"
+
+# Image pull secrets
+imagePullSecrets: []
+  # - name: myregistrykey
+
+# Node selector for all pods
+nodeSelector: {}
+
+# Tolerations for all pods
+tolerations: []
+
+# Affinity for all pods
+affinity: {}
+
+# Additional labels for all resources
+labels: {}
+
+# Additional annotations for all resources
+annotations: {}

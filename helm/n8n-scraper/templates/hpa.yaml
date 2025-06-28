@@ -1,0 +1,255 @@
+{{- if .Values.autoscaling.enabled }}
+{{- if .Values.api.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "n8n-scraper.fullname" . }}-api
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "n8n-scraper.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "n8n-scraper.fullname" . }}-api
+  minReplicas: {{ .Values.autoscaling.api.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.api.maxReplicas }}
+  metrics:
+    {{- if .Values.autoscaling.api.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.api.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.autoscaling.api.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.api.targetMemoryUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.autoscaling.api.customMetrics }}
+    {{- range .Values.autoscaling.api.customMetrics }}
+    - type: {{ .type }}
+      {{- if eq .type "Pods" }}
+      pods:
+        metric:
+          name: {{ .name }}
+        target:
+          type: AverageValue
+          averageValue: {{ .target }}
+      {{- else if eq .type "Object" }}
+      object:
+        metric:
+          name: {{ .name }}
+        describedObject:
+          apiVersion: {{ .object.apiVersion }}
+          kind: {{ .object.kind }}
+          name: {{ .object.name }}
+        target:
+          type: Value
+          value: {{ .target }}
+      {{- end }}
+    {{- end }}
+    {{- end }}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: {{ .Values.autoscaling.api.behavior.scaleDown.stabilizationWindowSeconds | default 300 }}
+      policies:
+      - type: Percent
+        value: {{ .Values.autoscaling.api.behavior.scaleDown.percentPolicy | default 10 }}
+        periodSeconds: {{ .Values.autoscaling.api.behavior.scaleDown.periodSeconds | default 60 }}
+      - type: Pods
+        value: {{ .Values.autoscaling.api.behavior.scaleDown.podsPolicy | default 2 }}
+        periodSeconds: {{ .Values.autoscaling.api.behavior.scaleDown.periodSeconds | default 60 }}
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: {{ .Values.autoscaling.api.behavior.scaleUp.stabilizationWindowSeconds | default 0 }}
+      policies:
+      - type: Percent
+        value: {{ .Values.autoscaling.api.behavior.scaleUp.percentPolicy | default 100 }}
+        periodSeconds: {{ .Values.autoscaling.api.behavior.scaleUp.periodSeconds | default 15 }}
+      - type: Pods
+        value: {{ .Values.autoscaling.api.behavior.scaleUp.podsPolicy | default 4 }}
+        periodSeconds: {{ .Values.autoscaling.api.behavior.scaleUp.periodSeconds | default 15 }}
+      selectPolicy: Max
+---
+{{- end }}
+{{- if .Values.worker.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "n8n-scraper.fullname" . }}-worker
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "n8n-scraper.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "n8n-scraper.fullname" . }}-worker
+  minReplicas: {{ .Values.autoscaling.worker.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.worker.maxReplicas }}
+  metrics:
+    {{- if .Values.autoscaling.worker.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.worker.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.autoscaling.worker.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.worker.targetMemoryUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.autoscaling.worker.customMetrics }}
+    {{- range .Values.autoscaling.worker.customMetrics }}
+    - type: {{ .type }}
+      {{- if eq .type "Pods" }}
+      pods:
+        metric:
+          name: {{ .name }}
+        target:
+          type: AverageValue
+          averageValue: {{ .target }}
+      {{- else if eq .type "Object" }}
+      object:
+        metric:
+          name: {{ .name }}
+        describedObject:
+          apiVersion: {{ .object.apiVersion }}
+          kind: {{ .object.kind }}
+          name: {{ .object.name }}
+        target:
+          type: Value
+          value: {{ .target }}
+      {{- end }}
+    {{- end }}
+    {{- end }}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: {{ .Values.autoscaling.worker.behavior.scaleDown.stabilizationWindowSeconds | default 300 }}
+      policies:
+      - type: Percent
+        value: {{ .Values.autoscaling.worker.behavior.scaleDown.percentPolicy | default 10 }}
+        periodSeconds: {{ .Values.autoscaling.worker.behavior.scaleDown.periodSeconds | default 60 }}
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: {{ .Values.autoscaling.worker.behavior.scaleUp.stabilizationWindowSeconds | default 0 }}
+      policies:
+      - type: Percent
+        value: {{ .Values.autoscaling.worker.behavior.scaleUp.percentPolicy | default 50 }}
+        periodSeconds: {{ .Values.autoscaling.worker.behavior.scaleUp.periodSeconds | default 15 }}
+      selectPolicy: Max
+---
+{{- end }}
+{{- if .Values.frontend.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "n8n-scraper.fullname" . }}-frontend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "n8n-scraper.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "n8n-scraper.fullname" . }}-frontend
+  minReplicas: {{ .Values.autoscaling.frontend.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.frontend.maxReplicas }}
+  metrics:
+    {{- if .Values.autoscaling.frontend.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.frontend.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.autoscaling.frontend.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.frontend.targetMemoryUtilizationPercentage }}
+    {{- end }}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: {{ .Values.autoscaling.frontend.behavior.scaleDown.stabilizationWindowSeconds | default 300 }}
+      policies:
+      - type: Percent
+        value: {{ .Values.autoscaling.frontend.behavior.scaleDown.percentPolicy | default 10 }}
+        periodSeconds: {{ .Values.autoscaling.frontend.behavior.scaleDown.periodSeconds | default 60 }}
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: {{ .Values.autoscaling.frontend.behavior.scaleUp.stabilizationWindowSeconds | default 0 }}
+      policies:
+      - type: Percent
+        value: {{ .Values.autoscaling.frontend.behavior.scaleUp.percentPolicy | default 100 }}
+        periodSeconds: {{ .Values.autoscaling.frontend.behavior.scaleUp.periodSeconds | default 15 }}
+      selectPolicy: Max
+---
+{{- end }}
+{{- if .Values.realtime.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "n8n-scraper.fullname" . }}-realtime
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "n8n-scraper.labels" . | nindent 4 }}
+    app.kubernetes.io/component: realtime
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "n8n-scraper.fullname" . }}-realtime
+  minReplicas: {{ .Values.autoscaling.realtime.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.realtime.maxReplicas }}
+  metrics:
+    {{- if .Values.autoscaling.realtime.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.realtime.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.autoscaling.realtime.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.realtime.targetMemoryUtilizationPercentage }}
+    {{- end }}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: {{ .Values.autoscaling.realtime.behavior.scaleDown.stabilizationWindowSeconds | default 300 }}
+      policies:
+      - type: Percent
+        value: {{ .Values.autoscaling.realtime.behavior.scaleDown.percentPolicy | default 10 }}
+        periodSeconds: {{ .Values.autoscaling.realtime.behavior.scaleDown.periodSeconds | default 60 }}
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: {{ .Values.autoscaling.realtime.behavior.scaleUp.stabilizationWindowSeconds | default 0 }}
+      policies:
+      - type: Percent
+        value: {{ .Values.autoscaling.realtime.behavior.scaleUp.percentPolicy | default 100 }}
+        periodSeconds: {{ .Values.autoscaling.realtime.behavior.scaleUp.periodSeconds | default 15 }}
+      selectPolicy: Max
+{{- end }}
+{{- end }}

@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: n8n-scraper
+  labels:
+    app.kubernetes.io/name: n8n-scraper
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: namespace
+    environment: production
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: n8n-scraper-quota
+  namespace: n8n-scraper
+spec:
+  hard:
+    requests.cpu: "4"
+    requests.memory: 8Gi
+    limits.cpu: "8"
+    limits.memory: 16Gi
+    persistentvolumeclaims: "10"
+    services: "10"
+    secrets: "20"
+    configmaps: "20"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: n8n-scraper-limits
+  namespace: n8n-scraper
+spec:
+  limits:
+  - default:
+      cpu: 500m
+      memory: 512Mi
+    defaultRequest:
+      cpu: 100m
+      memory: 128Mi
+    type: Container
+  - default:
+      storage: 1Gi
+    type: PersistentVolumeClaim

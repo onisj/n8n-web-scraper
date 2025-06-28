@@ -1,0 +1,45 @@
+apiVersion: v2
+name: n8n-scraper
+description: A comprehensive n8n documentation scraper and knowledge base with AI/ML capabilities
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+home: https://github.com/your-org/n8n-scraper
+sources:
+  - https://github.com/your-org/n8n-scraper
+maintainers:
+  - name: n8n-scraper Team
+    email: team@n8n-scraper.com
+keywords:
+  - n8n
+  - documentation
+  - scraper
+  - ai
+  - ml
+  - knowledge-base
+  - real-time
+  - collaboration
+annotations:
+  category: Analytics
+  licenses: MIT
+dependencies:
+  - name: redis
+    version: "17.15.6"
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled
+  - name: postgresql
+    version: "12.12.10"
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+  - name: nginx
+    version: "15.4.4"
+    repository: https://charts.bitnami.com/bitnami
+    condition: nginx.enabled
+  - name: prometheus
+    version: "25.8.0"
+    repository: https://prometheus-community.github.io/helm-charts
+    condition: monitoring.prometheus.enabled
+  - name: grafana
+    version: "7.0.19"
+    repository: https://grafana.github.io/helm-charts
+    condition: monitoring.grafana.enabled

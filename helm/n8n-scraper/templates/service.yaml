@@ -1,0 +1,145 @@
+{{- if .Values.api.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "n8n-scraper.fullname" . }}-api
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "n8n-scraper.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+  {{- with .Values.api.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.api.service.type }}
+  ports:
+  - port: {{ .Values.api.service.port }}
+    targetPort: http
+    protocol: TCP
+    name: http
+  - port: 9090
+    targetPort: metrics
+    protocol: TCP
+    name: metrics
+  selector:
+    {{- include "n8n-scraper.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+---
+{{- end }}
+{{- if .Values.worker.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "n8n-scraper.fullname" . }}-worker-metrics
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "n8n-scraper.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  ports:
+  - port: 9090
+    targetPort: metrics
+    protocol: TCP
+    name: metrics
+  selector:
+    {{- include "n8n-scraper.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+---
+{{- end }}
+{{- if .Values.frontend.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "n8n-scraper.fullname" . }}-frontend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "n8n-scraper.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+  {{- with .Values.frontend.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.frontend.service.type }}
+  ports:
+  - port: {{ .Values.frontend.service.port }}
+    targetPort: {{ .Values.frontend.service.targetPort }}
+    protocol: TCP
+    name: http
+  selector:
+    {{- include "n8n-scraper.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+---
+{{- end }}
+{{- if .Values.realtime.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "n8n-scraper.fullname" . }}-realtime
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "n8n-scraper.labels" . | nindent 4 }}
+    app.kubernetes.io/component: realtime
+  {{- with .Values.realtime.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.realtime.service.type }}
+  ports:
+  - port: {{ .Values.realtime.service.port }}
+    targetPort: {{ .Values.realtime.service.targetPort }}
+    protocol: TCP
+    name: http
+  selector:
+    {{- include "n8n-scraper.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: realtime
+---
+{{- end }}
+{{- if .Values.chromadb.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "n8n-scraper.fullname" . }}-chromadb
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "n8n-scraper.labels" . | nindent 4 }}
+    app.kubernetes.io/component: chromadb
+spec:
+  type: ClusterIP
+  ports:
+  - port: {{ .Values.chromadb.service.port }}
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    {{- include "n8n-scraper.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: chromadb
+---
+{{- end }}
+{{- if .Values.redis.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "n8n-scraper.fullname" . }}-redis
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "n8n-scraper.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis
+spec:
+  type: ClusterIP
+  ports:
+  - port: {{ .Values.redis.service.port }}
+    targetPort: redis
+    protocol: TCP
+    name: redis
+  selector:
+    {{- include "n8n-scraper.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: redis
+{{- end }}

@@ -1,0 +1,228 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "n8n-scraper.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "n8n-scraper.labels" . | nindent 4 }}
+data:
+  # Application Configuration
+  APP_NAME: {{ .Values.config.app.name | quote }}
+  APP_VERSION: {{ .Chart.AppVersion | quote }}
+  ENVIRONMENT: {{ .Values.config.app.environment | quote }}
+  DEBUG: {{ .Values.config.app.debug | quote }}
+  
+  # Server Configuration
+  HOST: {{ .Values.config.server.host | quote }}
+  PORT: {{ .Values.config.server.port | quote }}
+  WORKERS: {{ .Values.config.server.workers | quote }}
+  TIMEOUT: {{ .Values.config.server.timeout | quote }}
+  
+  # Database Configuration
+  DB_POOL_SIZE: {{ .Values.config.database.poolSize | quote }}
+  DB_MAX_OVERFLOW: {{ .Values.config.database.maxOverflow | quote }}
+  DB_POOL_TIMEOUT: {{ .Values.config.database.poolTimeout | quote }}
+  DB_POOL_RECYCLE: {{ .Values.config.database.poolRecycle | quote }}
+  
+  # Vector Database Configuration
+  VECTOR_DB_HOST: {{ .Values.config.vectorDb.host | quote }}
+  VECTOR_DB_PORT: {{ .Values.config.vectorDb.port | quote }}
+  VECTOR_DB_COLLECTION: {{ .Values.config.vectorDb.collection | quote }}
+  VECTOR_DB_PERSIST_DIRECTORY: {{ .Values.config.vectorDb.persistDirectory | quote }}
+  
+  # Cache Configuration
+  CACHE_TYPE: {{ .Values.config.cache.type | quote }}
+  CACHE_TTL: {{ .Values.config.cache.ttl | quote }}
+  CACHE_MAX_SIZE: {{ .Values.config.cache.maxSize | quote }}
+  
+  # AI/ML Configuration
+  AI_MODEL_NAME: {{ .Values.config.ai.modelName | quote }}
+  AI_MAX_TOKENS: {{ .Values.config.ai.maxTokens | quote }}
+  AI_TEMPERATURE: {{ .Values.config.ai.temperature | quote }}
+  AI_BATCH_SIZE: {{ .Values.config.ai.batchSize | quote }}
+  AI_ENABLE_CACHING: {{ .Values.config.ai.enableCaching | quote }}
+  
+  # Scraping Configuration
+  SCRAPING_DELAY: {{ .Values.config.scraping.delay | quote }}
+  SCRAPING_TIMEOUT: {{ .Values.config.scraping.timeout | quote }}
+  SCRAPING_RETRIES: {{ .Values.config.scraping.retries | quote }}
+  SCRAPING_CONCURRENT_REQUESTS: {{ .Values.config.scraping.concurrentRequests | quote }}
+  SCRAPING_USER_AGENT: {{ .Values.config.scraping.userAgent | quote }}
+  
+  # Monitoring Configuration
+  METRICS_ENABLED: {{ .Values.config.monitoring.metricsEnabled | quote }}
+  METRICS_PORT: {{ .Values.config.monitoring.metricsPort | quote }}
+  HEALTH_CHECK_INTERVAL: {{ .Values.config.monitoring.healthCheckInterval | quote }}
+  
+  # Logging Configuration
+  LOG_LEVEL: {{ .Values.config.logging.level | quote }}
+  LOG_FORMAT: {{ .Values.config.logging.format | quote }}
+  LOG_FILE: {{ .Values.config.logging.file | quote }}
+  LOG_MAX_SIZE: {{ .Values.config.logging.maxSize | quote }}
+  LOG_BACKUP_COUNT: {{ .Values.config.logging.backupCount | quote }}
+  
+  # Security Configuration
+  CORS_ORIGINS: {{ .Values.config.security.corsOrigins | quote }}
+  RATE_LIMIT_REQUESTS: {{ .Values.config.security.rateLimitRequests | quote }}
+  RATE_LIMIT_WINDOW: {{ .Values.config.security.rateLimitWindow | quote }}
+  SESSION_TIMEOUT: {{ .Values.config.security.sessionTimeout | quote }}
+  
+  # Real-time Configuration
+  REALTIME_ENABLED: {{ .Values.config.realtime.enabled | quote }}
+  REALTIME_PORT: {{ .Values.config.realtime.port | quote }}
+  REALTIME_CORS_ORIGINS: {{ .Values.config.realtime.corsOrigins | quote }}
+  REALTIME_PING_TIMEOUT: {{ .Values.config.realtime.pingTimeout | quote }}
+  REALTIME_PING_INTERVAL: {{ .Values.config.realtime.pingInterval | quote }}
+  
+  # Automation Configuration
+  AUTOMATION_ENABLED: {{ .Values.config.automation.enabled | quote }}
+  AUTOMATION_SCHEDULE: {{ .Values.config.automation.schedule | quote }}
+  AUTOMATION_MAX_CONCURRENT: {{ .Values.config.automation.maxConcurrent | quote }}
+  
+  # Backup Configuration
+  BACKUP_ENABLED: {{ .Values.config.backup.enabled | quote }}
+  BACKUP_SCHEDULE: {{ .Values.config.backup.schedule | quote }}
+  BACKUP_RETENTION_DAYS: {{ .Values.config.backup.retentionDays | quote }}
+  BACKUP_COMPRESSION: {{ .Values.config.backup.compression | quote }}
+  
+  # Performance Configuration
+  PERFORMANCE_CACHE_ENABLED: {{ .Values.config.performance.cacheEnabled | quote }}
+  PERFORMANCE_PARALLEL_PROCESSING: {{ .Values.config.performance.parallelProcessing | quote }}
+  PERFORMANCE_MAX_WORKERS: {{ .Values.config.performance.maxWorkers | quote }}
+  PERFORMANCE_BATCH_SIZE: {{ .Values.config.performance.batchSize | quote }}
+  
+  # Feature Flags
+  FEATURE_AI_PROCESSING: {{ .Values.config.featureFlags.aiProcessing | quote }}
+  FEATURE_REAL_TIME: {{ .Values.config.featureFlags.realTime | quote }}
+  FEATURE_ANALYTICS: {{ .Values.config.featureFlags.analytics | quote }}
+  FEATURE_BACKUP: {{ .Values.config.featureFlags.backup | quote }}
+  FEATURE_MONITORING: {{ .Values.config.featureFlags.monitoring | quote }}
+  
+  # External Services
+  EXTERNAL_N8N_URL: {{ .Values.config.externalServices.n8nUrl | quote }}
+  EXTERNAL_WEBHOOK_TIMEOUT: {{ .Values.config.externalServices.webhookTimeout | quote }}
+  EXTERNAL_API_TIMEOUT: {{ .Values.config.externalServices.apiTimeout | quote }}
+  
+  # Data Processing
+  DATA_CHUNK_SIZE: {{ .Values.config.dataProcessing.chunkSize | quote }}
+  DATA_OVERLAP_SIZE: {{ .Values.config.dataProcessing.overlapSize | quote }}
+  DATA_MAX_FILE_SIZE: {{ .Values.config.dataProcessing.maxFileSize | quote }}
+  DATA_SUPPORTED_FORMATS: {{ .Values.config.dataProcessing.supportedFormats | quote }}
+  
+  # API Configuration
+  API_VERSION: {{ .Values.config.api.version | quote }}
+  API_PREFIX: {{ .Values.config.api.prefix | quote }}
+  API_DOCS_ENABLED: {{ .Values.config.api.docsEnabled | quote }}
+  API_MAX_REQUEST_SIZE: {{ .Values.config.api.maxRequestSize | quote }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "n8n-scraper.fullname" . }}-nginx-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "n8n-scraper.labels" . | nindent 4 }}
+data:
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+    
+    http {
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+        
+        # Logging
+        log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                        '$status $body_bytes_sent "$http_referer" '
+                        '"$http_user_agent" "$http_x_forwarded_for"';
+        
+        access_log /var/log/nginx/access.log main;
+        error_log /var/log/nginx/error.log warn;
+        
+        # Gzip compression
+        gzip on;
+        gzip_vary on;
+        gzip_min_length 1024;
+        gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+        
+        # Rate limiting
+        limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+        limit_req_zone $binary_remote_addr zone=websocket:10m rate=5r/s;
+        
+        # Upstream servers
+        upstream api_backend {
+            server {{ include "n8n-scraper.fullname" . }}-api:{{ .Values.api.service.port }};
+        }
+        
+        upstream frontend_backend {
+            server {{ include "n8n-scraper.fullname" . }}-frontend:{{ .Values.frontend.service.port }};
+        }
+        
+        upstream realtime_backend {
+            server {{ include "n8n-scraper.fullname" . }}-realtime:{{ .Values.realtime.service.port }};
+        }
+        
+        server {
+            listen 80;
+            server_name _;
+            
+            # Security headers
+            add_header X-Frame-Options DENY;
+            add_header X-Content-Type-Options nosniff;
+            add_header X-XSS-Protection "1; mode=block";
+            add_header Referrer-Policy strict-origin-when-cross-origin;
+            
+            # API routes
+            location /api/ {
+                limit_req zone=api burst=20 nodelay;
+                proxy_pass http://api_backend;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_connect_timeout 30s;
+                proxy_send_timeout 30s;
+                proxy_read_timeout 30s;
+            }
+            
+            # WebSocket routes
+            location /socket.io/ {
+                limit_req zone=websocket burst=10 nodelay;
+                proxy_pass http://realtime_backend;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection "upgrade";
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_connect_timeout 7d;
+                proxy_send_timeout 7d;
+                proxy_read_timeout 7d;
+            }
+            
+            # Frontend routes
+            location / {
+                proxy_pass http://frontend_backend;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                
+                # Cache static assets
+                location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+                    expires 1y;
+                    add_header Cache-Control "public, immutable";
+                    proxy_pass http://frontend_backend;
+                }
+            }
+            
+            # Health check
+            location /health {
+                access_log off;
+                return 200 "healthy\n";
+                add_header Content-Type text/plain;
+            }
+        }
+    }
