@@ -1,0 +1,231 @@
+Accurate Import Test Report
+==================================================
+
+PASS: config.settings
+  Description: Main configuration settings
+  Import time: 0.005s
+
+PASS: n8n_scraper
+  Description: Main package initialization
+  Import time: 11.055s
+
+PASS: n8n_scraper.database
+  Description: Database package
+  Import time: 0.000s
+
+PASS: n8n_scraper.database.vector_db
+  Description: Vector database implementation
+  Import time: 0.000s
+
+PASS: n8n_scraper.database.schemas
+  Description: Database schemas
+  Import time: 0.000s
+
+PASS: n8n_scraper.database.schemas.document
+  Description: Document schema
+  Import time: 0.000s
+
+PASS: n8n_scraper.database.schemas.knowledge_base
+  Description: Knowledge base schema
+  Import time: 0.000s
+
+PASS: n8n_scraper.database.migrations.migration_manager
+  Description: Migration manager
+  Import time: 0.000s
+
+PASS: n8n_scraper.agents.n8n_agent
+  Description: Main n8n expert agent
+  Import time: 0.000s
+
+PASS: n8n_scraper.agents.knowledge_processor
+  Description: Knowledge processing agent
+  Import time: 0.000s
+
+PASS: n8n_scraper.automation.update_scheduler
+  Description: Automated update scheduler
+  Import time: 0.000s
+
+PASS: n8n_scraper.automation.knowledge_updater
+  Description: Knowledge updater (scraper)
+  Import time: 0.000s
+
+PASS: n8n_scraper.automation.change_detector
+  Description: Change detection and analysis
+  Import time: 0.000s
+
+PASS: n8n_scraper.api
+  Description: API package
+  Import time: 0.000s
+
+PASS: n8n_scraper.api.main
+  Description: Main FastAPI application
+  Import time: 1.299s
+
+PASS: n8n_scraper.api.routes
+  Description: API routes package
+  Import time: 0.000s
+
+PASS: n8n_scraper.api.routes.ai_routes
+  Description: AI-related API routes
+  Import time: 0.000s
+
+PASS: n8n_scraper.api.routes.knowledge_routes
+  Description: Knowledge API routes
+  Import time: 0.000s
+
+PASS: n8n_scraper.api.routes.system_routes
+  Description: System API routes
+  Import time: 0.000s
+
+PASS: n8n_scraper.api.middleware
+  Description: Middleware package
+  Import time: 0.007s
+
+PASS: n8n_scraper.api.middleware.auth
+  Description: Authentication middleware
+  Import time: 0.000s
+
+PASS: n8n_scraper.api.middleware.cors
+  Description: CORS middleware
+  Import time: 0.000s
+
+PASS: n8n_scraper.api.middleware.rate_limit
+  Description: Rate limiting middleware
+  Import time: 0.000s
+
+PASS: n8n_scraper.web_interface
+  Description: Web interface package
+  Import time: 0.000s
+
+PASS: n8n_scraper.web_interface.streamlit_app
+  Description: Main Streamlit application
+  Import time: 0.000s
+
+PASS: n8n_scraper.web_interface.components
+  Description: UI components package
+  Import time: 0.000s
+
+PASS: n8n_scraper.web_interface.components.chat_interface
+  Description: Chat interface component
+  Import time: 0.000s
+
+PASS: n8n_scraper.web_interface.components.knowledge_browser
+  Description: Knowledge browser component
+  Import time: 0.000s
+
+PASS: n8n_scraper.web_interface.components.system_monitor
+  Description: System monitor component
+  Import time: 0.000s
+
+PASS: n8n_scraper.web_interface.components.settings_panel
+  Description: Settings panel component
+  Import time: 0.000s
+
+PASS: scripts.start_system
+  Description: System startup script
+  Import time: 0.009s
+
+PASS: scripts.run_scraper
+  Description: Scraper runner script
+  Import time: 0.002s
+
+PASS: scripts.run_tests
+  Description: Test runner script
+  Import time: 0.002s
+
+PASS: tools.system_check
+  Description: System health check tool
+  Import time: 0.004s
+
+PASS: tools.restructure_project
+  Description: Project restructuring tool
+  Import time: 0.001s
+
+PASS: fastapi
+  Description: FastAPI web framework
+  Import time: 0.000s
+
+PASS: uvicorn
+  Description: ASGI server
+  Import time: 0.000s
+
+PASS: streamlit
+  Description: Streamlit web app framework
+  Import time: 0.000s
+
+PASS: pydantic
+  Description: Data validation library
+  Import time: 0.000s
+
+PASS: requests
+  Description: HTTP library
+  Import time: 0.000s
+
+PASS: bs4
+  Description: Beautiful Soup HTML parser
+  Import time: 0.000s
+
+PASS: chromadb
+  Description: Vector database
+  Import time: 0.000s
+
+PASS: schedule
+  Description: Job scheduling library
+  Import time: 0.000s
+
+PASS: psutil
+  Description: System monitoring library
+  Import time: 0.000s
+
+PASS (OPTIONAL): selenium
+  Description: Web automation (optional)
+  Import time: 0.001s
+
+PASS (OPTIONAL): openai
+  Description: OpenAI API client (optional)
+  Import time: 1.377s
+
+PASS (OPTIONAL): langchain
+  Description: LangChain framework (optional)
+  Import time: 0.015s
+
+PASS (OPTIONAL): nltk
+  Description: Natural Language Toolkit (optional)
+  Import time: 0.612s
+
+PASS (OPTIONAL): plotly
+  Description: Plotting library (optional)
+  Import time: 0.000s
+
+PASS: json
+  Description: JSON handling
+  Import time: 0.000s
+
+PASS: os
+  Description: Operating system interface
+  Import time: 0.000s
+
+PASS: sys
+  Description: System-specific parameters
+  Import time: 0.000s
+
+PASS: pathlib
+  Description: Path handling
+  Import time: 0.000s
+
+PASS: datetime
+  Description: Date and time handling
+  Import time: 0.000s
+
+PASS: logging
+  Description: Logging facility
+  Import time: 0.000s
+
+PASS: threading
+  Description: Threading support
+  Import time: 0.000s
+
+PASS: subprocess
+  Description: Subprocess management
+  Import time: 0.000s
+
