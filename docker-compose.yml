@@ -1,0 +1,120 @@
+version: '3.8'
+
+services:
+  # Main Application (API + Web Interface)
+  n8n-knowledge-app:
+    build: .
+    container_name: n8n-knowledge-app
+    ports:
+      - "8000:8000"  # FastAPI
+      # - "8501:8501"  # Streamlit - REMOVED (replaced by Next.js frontend)
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - N8N_API_KEY=${N8N_API_KEY}
+      - PYTHONPATH=/app
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+      - ./.env:/app/.env
+    depends_on:
+      - chromadb
+    restart: unless-stopped
+    networks:
+      - n8n-knowledge-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Automated Updater Service
+  n8n-knowledge-updater:
+    build: .
+    container_name: n8n-knowledge-updater
+    command: python src/n8n_scraper/automation/update_scheduler.py start
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - N8N_API_KEY=${N8N_API_KEY}
+      - PYTHONPATH=/app
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+      - ./.env:/app/.env
+    depends_on:
+      - chromadb
+      - n8n-knowledge-app
+    restart: unless-stopped
+    networks:
+      - n8n-knowledge-net
+
+  # ChromaDB Vector Database
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: n8n-knowledge-chromadb
+    ports:
+      - "8001:8000"  # Changed port to avoid conflict with FastAPI
+    volumes:
+      - chromadb_data:/chroma/chroma
+    environment:
+      - CHROMA_SERVER_HOST=0.0.0.0
+      - CHROMA_SERVER_HTTP_PORT=8000
+    restart: unless-stopped
+    networks:
+      - n8n-knowledge-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Redis for Caching (Optional)
+  redis:
+    image: redis:7-alpine
+    container_name: n8n-knowledge-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - n8n-knowledge-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx Reverse Proxy (Optional)
+  nginx:
+    image: nginx:alpine
+    container_name: n8n-knowledge-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - n8n-knowledge-app
+    restart: unless-stopped
+    networks:
+      - n8n-knowledge-net
+    profiles:
+      - production
+
+volumes:
+  chromadb_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  n8n-knowledge-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
