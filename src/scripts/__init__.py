@@ -1,0 +1,1 @@
+"""Executable scripts for the n8n web scrapper project."""

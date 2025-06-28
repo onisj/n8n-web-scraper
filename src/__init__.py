@@ -1,0 +1,1 @@
+"""Source code package for n8n web scrapper."""
