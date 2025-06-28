@@ -1,0 +1,33 @@
+[Unit]
+Description=n8n Documentation Automation Service
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=n8n-scraper
+Group=n8n-scraper
+WorkingDirectory=/opt/n8n-web-scrapper
+Environment=PATH=/opt/n8n-web-scrapper/venv/bin:/usr/local/bin:/usr/bin:/bin
+EnvironmentFile=/opt/n8n-web-scrapper/.env
+ExecStart=/opt/n8n-web-scrapper/venv/bin/python automation_service.py start
+ExecStop=/opt/n8n-web-scrapper/venv/bin/python automation_service.py stop
+Restart=always
+RestartSec=30
+TimeoutStartSec=60
+TimeoutStopSec=30
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/n8n-web-scrapper/data /opt/n8n-web-scrapper/logs /opt/n8n-web-scrapper/backups /opt/n8n-web-scrapper/exports
+
+# Resource limits
+LimitNOFILE=65536
+MemoryMax=2G
+CPUQuota=200%
+
+[Install]
+WantedBy=multi-user.target
