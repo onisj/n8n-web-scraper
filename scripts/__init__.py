@@ -1,0 +1,1 @@
+# Scripts package for n8n automation system
