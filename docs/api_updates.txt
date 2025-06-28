@@ -1,0 +1,68 @@
+- /ai/best-practices:
+INFO:     127.0.0.1:65134 - "GET /ai/best-practices HTTP/1.1" 500 Internal Server Error
+{
+  "success": false,
+  "error": "Failed to get best practices: 'NoneType' object has no attribute 'lower'",
+  "timestamp": "2025-06-27T01:15:45.182864"
+}
+
+- What is "/knowledge/categories" api supposed to do?
+- "/knowledge/stats" api does not include the 2000+ workflows that was just integrated
+- "/knowledge/reload" does not work
+{
+  "success": false,
+  "error": "Failed to reload knowledge base: 'ProcessedKnowledge' object has no attribute 'metadata'",
+  "timestamp": "2025-06-27T01:23:41.319933"
+}
+
+- "/system/logs" api works but confirm the path and make sure it's looking at the right place
+{
+  "success": true,
+  "data": {
+    "logs": []
+  },
+  "message": "No log file found",
+  "timestamp": "2025-06-27T01:26:20.790810"
+}
+
+- "" /system/backup/createapi works but where does it create the backup into? It should be in backups/ on the root directory, init?
+{
+  "success": true,
+  "data": {
+    "backup_triggered": true
+  },
+  "message": "Backup task started in background",
+  "timestamp": "2025-06-27T01:28:18.716411"
+}
+
+- "/workflows/health" api works but cant access database:
+{
+  "status": "error",
+  "message": "unable to open database file"
+}
+
+- "/system/backup/list". again, where is the back-up created in? No list:
+{
+  "success": true,
+  "data": {
+    "backups": [],
+    "total": 0
+  },
+  "message": "Backups listed successfully",
+  "timestamp": "2025-06-27T01:33:35.732324"
+}
+INFO:     127.0.0.1:50889 - "GET /workflows/stats HTTP/1.1" 500 Internal Server Error
+2025-06-27 01:52:30 - src.n8n_scraper.api.routes.workflow_routes - ERROR - Workflow search failed: 500: unable to open database file
+INFO:     127.0.0.1:50898 - "POST /workflows/search HTTP/1.1" 500 Internal Server Error
+2025-06-27 01:52:45 - src.n8n_scraper.api.routes.workflow_routes - ERROR - Failed to get categories: 500: unable to open database file
+INFO:     127.0.0.1:50906 - "GET /workflows/categories HTTP/1.1" 500 Internal Server Error
+2025-06-27 01:52:51 - src.n8n_scraper.api.routes.workflow_routes - ERROR - Failed to get integrations: 500: unable to open database file
+INFO:     127.0.0.1:50918 - "GET /workflows/integrations HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:50932 - "GET /workflows/0002%2A HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:50951 - "GET /workflows/0020%2A/download HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:50972 - "GET /workflows/0200%2A/similar?limit=5 HTTP/1.1" 500 Internal Server Error
+
+- "api/update/trigger":
+INFO:     127.0.0.1:50999 - "POST /update/trigger HTTP/1.1" 200 OK
+2025-06-27 01:54:54 - src.n8n_scraper.api.main - INFO - Starting background update task
+2025-06-27 01:54:54 - src.n8n_scraper.api.main - ERROR - Background update task failed: 'AutomatedUpdater' object has no attribute 'run_update_cycle'
