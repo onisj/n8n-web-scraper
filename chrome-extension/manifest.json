@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "n8n AI Assistant",
+  "version": "1.0.0",
+  "description": "AI-powered n8n documentation and workflow assistant",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://docs.n8n.io/*",
+    "https://n8n.io/*",
+    "http://localhost:8000/*"
+  ],
+  "action": {
+    "default_popup": "popup/index.html",
+    "default_title": "n8n AI Assistant"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://docs.n8n.io/*",
+        "https://n8n.io/*"
+      ],
+      "js": [
+        "content/content.js"
+      ],
+      "css": [
+        "content/content.css"
+      ]
+    }
+  ],
+  "background": {
+    "service_worker": "background/background.js"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
