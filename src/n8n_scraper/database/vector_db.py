@@ -22,7 +22,7 @@ class VectorDatabase:
     
     def __init__(
         self,
-        persist_directory: str = "./data/chroma_db",
+        persist_directory: str = "/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/databases/vector",
         collection_name: str = "n8n_knowledge",
         embedding_model: str = "all-MiniLM-L6-v2"
     ):

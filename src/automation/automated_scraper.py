@@ -44,7 +44,7 @@ logging.basicConfig(
     level=getattr(logging, os.getenv('LOG_LEVEL', 'INFO')),
     format=os.getenv('LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %(message)s'),
     handlers=[
-        logging.FileHandler(os.path.join(os.getenv('LOGS_DIRECTORY', './logs'), 'automation.log')),
+        logging.FileHandler(os.path.join(os.getenv('LOGS_DIRECTORY', '/Users/user/Projects/n8n-projects/n8n-web-scrapper/logs'), 'automation.log')),
         logging.StreamHandler()
     ]
 )
@@ -73,11 +73,11 @@ class AutomationConfig:
     database_password: str = os.getenv('DATABASE_PASSWORD', '')
     
     # Directories
-    data_directory: str = os.getenv('DATA_DIRECTORY', './data')
-    scraped_docs_directory: str = os.getenv('SCRAPED_DOCS_DIRECTORY', './data/scraped_docs')
-    backups_directory: str = os.getenv('BACKUPS_DIRECTORY', './backups')
-    exports_directory: str = os.getenv('EXPORTS_DIRECTORY', './data/exports')
-    logs_directory: str = os.getenv('LOGS_DIRECTORY', './logs')
+    data_directory: str = os.getenv('DATA_DIRECTORY', '/Users/user/Projects/n8n-projects/n8n-web-scrapper/data')
+    scraped_docs_directory: str = os.getenv('SCRAPED_DOCS_DIRECTORY', '/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs')
+    backups_directory: str = os.getenv('BACKUPS_DIRECTORY', '/Users/user/Projects/n8n-projects/n8n-web-scrapper/backups')
+    exports_directory: str = os.getenv('EXPORTS_DIRECTORY', '/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/exports')
+    logs_directory: str = os.getenv('LOGS_DIRECTORY', '/Users/user/Projects/n8n-projects/n8n-web-scrapper/logs')
     
     # Scraping
     scraper_max_pages: int = int(os.getenv('SCRAPER_MAX_PAGES', '500'))

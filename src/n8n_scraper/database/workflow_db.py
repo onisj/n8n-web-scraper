@@ -22,6 +22,7 @@ class WorkflowDatabase:
             db_path = os.environ.get('WORKFLOW_DB_PATH', 'workflows.db')
         self.db_path = db_path
         self.workflows_dir = "workflows"
+        self._connection_cache = None
         self.init_database()
     
     def init_database(self):
@@ -100,6 +101,29 @@ class WorkflowDatabase:
         
         conn.commit()
         conn.close()
+    
+    def get_connection(self):
+        """Get a cached database connection with optimizations."""
+        if self._connection_cache is None or self._connection_cache.execute("PRAGMA quick_check").fetchone()[0] != "ok":
+            self._connection_cache = sqlite3.connect(self.db_path, check_same_thread=False)
+            self._connection_cache.row_factory = sqlite3.Row
+            # Apply performance optimizations
+            self._connection_cache.execute("PRAGMA journal_mode=WAL")
+            self._connection_cache.execute("PRAGMA synchronous=NORMAL")
+            self._connection_cache.execute("PRAGMA cache_size=20000")
+            self._connection_cache.execute("PRAGMA temp_store=MEMORY")
+            self._connection_cache.execute("PRAGMA mmap_size=268435456")  # 256MB
+        return self._connection_cache
+    
+    def close_connection(self):
+        """Close the cached database connection."""
+        if self._connection_cache:
+            self._connection_cache.close()
+            self._connection_cache = None
+    
+    def __del__(self):
+        """Cleanup cached connection on object destruction."""
+        self.close_connection()
     
     def get_file_hash(self, file_path: str) -> str:
         """Get MD5 hash of file for change detection."""
@@ -511,8 +535,7 @@ class WorkflowDatabase:
                         complexity_filter: str = "all", active_only: bool = False,
                         limit: int = 50, offset: int = 0) -> Tuple[List[Dict], int]:
         """Fast search with filters and pagination."""
-        conn = sqlite3.connect(self.db_path)
-        conn.row_factory = sqlite3.Row
+        conn = self.get_connection()
         
         # Build WHERE clause
         where_conditions = []
@@ -585,13 +608,12 @@ class WorkflowDatabase:
             
             results.append(workflow)
         
-        conn.close()
+        # Don't close cached connection
         return results, total
     
     def get_stats(self) -> Dict[str, Any]:
         """Get database statistics."""
-        conn = sqlite3.connect(self.db_path)
-        conn.row_factory = sqlite3.Row
+        conn = self.get_connection()
         
         # Basic counts
         cursor = conn.execute("SELECT COUNT(*) as total FROM workflows")
@@ -627,7 +649,7 @@ class WorkflowDatabase:
             integrations = json.loads(row['integrations'])
             all_integrations.update(integrations)
         
-        conn.close()
+        # Don't close cached connection
         
         return {
             'total': total,
@@ -664,8 +686,7 @@ class WorkflowDatabase:
             return [], 0
         
         services = categories[category]
-        conn = sqlite3.connect(self.db_path)
-        conn.row_factory = sqlite3.Row
+        conn = self.get_connection()
         
         # Build OR conditions for all services in category
         service_conditions = []
@@ -707,7 +728,7 @@ class WorkflowDatabase:
             workflow['tags'] = clean_tags
             results.append(workflow)
         
-        conn.close()
+        # Don't close cached connection
         return results, total
 
 

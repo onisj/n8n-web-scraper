@@ -36,8 +36,8 @@ class KnowledgeVectorIntegration:
     
     def __init__(
         self,
-        scraped_data_dir: str = "data/scraped_docs",
-        vector_db_dir: str = "data/chroma_db",
+        scraped_data_dir: str = "/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs",
+        vector_db_dir: str = "/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/databases/vector",
         collection_name: str = "n8n_knowledge",
         chunk_size: int = 1000,
         chunk_overlap: int = 200
@@ -551,8 +551,8 @@ class KnowledgeVectorIntegration:
 # Convenience functions for easy integration
 
 def create_knowledge_integration(
-    scraped_data_dir: str = "data/scraped_docs",
-    vector_db_dir: str = "data/chroma_db"
+    scraped_data_dir: str = "/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs",
+    vector_db_dir: str = "/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/databases/vector"
 ) -> KnowledgeVectorIntegration:
     """
     Create a knowledge vector integration instance.

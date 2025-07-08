@@ -12,6 +12,7 @@ from pathlib import Path
 import json
 
 from n8n_scraper.optimization.agent_manager import get_knowledge_processor, get_expert_agent
+from n8n_scraper.database.workflow_db import WorkflowDatabase
 
 router = APIRouter(prefix="/knowledge", tags=["Knowledge Base"])
 
@@ -77,7 +78,7 @@ async def get_categories(
     """Get available knowledge categories"""
     try:
         # Get categories from processed knowledge
-        data_dir = Path("data/scraped_docs")
+        data_dir = Path("/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs")
         categories = set()
         
         if data_dir.exists():
@@ -111,50 +112,72 @@ async def get_knowledge_stats(
 ):
     """Get knowledge base statistics"""
     try:
-        data_dir = Path("data/scraped_docs")
+        # Check both documentation and workflow directories
+        docs_dir = Path("/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs")
+        workflows_dir = Path("/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/workflows/files")
         
-        if not data_dir.exists():
-            return APIResponse(
-                success=True,
-                data={
-                    "total_files": 0,
-                    "total_pages": 0,
-                    "documentation_files": 0,
-                    "workflow_files": 0,
-                    "categories": [],
-                    "last_update": None
-                },
-                message="No knowledge base found"
-            )
-        
-        # Count files and gather stats
-        json_files = list(data_dir.glob("*.json"))
+        total_files = 0
         total_pages = 0
         categories = set()
         workflow_files = 0
         documentation_files = 0
         
-        for json_file in json_files:
-            try:
-                # Count workflow files by filename pattern
-                if "workflow" in json_file.name.lower():
-                    workflow_files += 1
-                else:
-                    documentation_files += 1
-                    
-                with open(json_file, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    if isinstance(data, dict):
-                        total_pages += 1
-                        if 'category' in data:
-                            categories.add(data['category'])
-                    elif isinstance(data, list):
-                        total_pages += len(data)
-                        for item in data:
-                            if isinstance(item, dict) and 'category' in item:
-                                categories.add(item['category'])
-            except Exception:
-                continue
+        # Count documentation files
+        if docs_dir.exists():
+            doc_json_files = list(docs_dir.glob("*.json"))
+            documentation_files = len(doc_json_files)
+            total_files += documentation_files
+            
+            for json_file in doc_json_files:
+                try:
+                    with open(json_file, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                        if isinstance(data, dict):
+                            total_pages += 1
+                            if 'category' in data:
+                                categories.add(data['category'])
+                        elif isinstance(data, list):
+                            total_pages += len(data)
+                            for item in data:
+                                if isinstance(item, dict) and 'category' in item:
+                                    categories.add(item['category'])
+                except Exception:
+                    continue
+        
+        # Count workflow files from SQLite database
+        try:
+            workflow_db = WorkflowDatabase("/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/databases/sqlite/workflows.db")
+            workflow_stats = workflow_db.get_stats()
+            workflow_files = workflow_stats.get('total', 0)
+            total_files += workflow_files
+            total_pages += workflow_files  # Each workflow is considered a page
+            categories.add("workflows")
+        except Exception as e:
+            print(f"Warning: Could not get workflow stats from database: {e}")
+            # Fallback to file counting if database is not available
+            if workflows_dir.exists():
+                workflow_json_files = list(workflows_dir.glob("*.json"))
+                workflow_files = len(workflow_json_files)
+                total_files += workflow_files
+                
+                for json_file in workflow_json_files:
+                    try:
+                        with open(json_file, 'r', encoding='utf-8') as f:
+                            data = json.load(f)
+                            if isinstance(data, dict):
+                                total_pages += 1
+                                # Add workflow category
+                                categories.add("workflows")
+                                if 'category' in data:
+                                    categories.add(data['category'])
+                            elif isinstance(data, list):
+                                total_pages += len(data)
+                                categories.add("workflows")
+                                for item in data:
+                                    if isinstance(item, dict) and 'category' in item:
+                                        categories.add(item['category'])
+                    except Exception:
+                        continue
         
         # Get last update from analysis report
         analysis_file = Path("n8n_docs_analysis_report.json")
@@ -167,16 +190,36 @@ async def get_knowledge_stats(
             except Exception:
                 pass
         
+        # Get additional workflow statistics if database is available
+        workflow_details = {}
+        try:
+            workflow_db = WorkflowDatabase("/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/databases/sqlite/workflows.db")
+            workflow_stats = workflow_db.get_stats()
+            workflow_details = {
+                "total_workflows": workflow_stats.get('total', workflow_files),
+                "active_workflows": workflow_stats.get('active', 0),
+                "total_nodes": workflow_stats.get('total_nodes', 0),
+                "unique_integrations": workflow_stats.get('unique_integrations', 0)
+            }
+        except Exception:
+            workflow_details = {
+                "total_workflows": workflow_files,
+                "active_workflows": 0,
+                "total_nodes": 0,
+                "unique_integrations": 0
+            }
+
         return APIResponse(
             success=True,
             data={
-                "total_files": len(json_files),
+                "total_files": total_files,
                 "total_pages": total_pages,
                 "documentation_files": documentation_files,
                 "workflow_files": workflow_files,
                 "categories": sorted(list(categories)),
                 "total_categories": len(categories),
-                "last_update": last_update
+                "last_update": last_update,
+                **workflow_details
             },
             message="Statistics retrieved successfully"
         )
@@ -187,7 +230,7 @@ async def get_knowledge_stats(
 async def get_document(doc_id: str):
     """Get a specific document by ID"""
     try:
-        data_dir = Path("data/scraped_docs")
+        data_dir = Path("/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs")
         doc_file = data_dir / f"{doc_id}.json"
         
         if not doc_file.exists():

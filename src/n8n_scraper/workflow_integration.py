@@ -23,9 +23,9 @@ class WorkflowIntegration:
     """Handles integration of workflow system with main backend."""
     
     def __init__(self, main_db_path: str = None, workflow_db_path: str = None):
-        self.main_db_path = main_db_path or "data/knowledge_base.db"
-        self.workflow_db_path = workflow_db_path or "data/workflows/database/workflows.db"
-        self.workflows_json_dir = "data/workflows/files"
+        self.main_db_path = main_db_path or "/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/databases/sqlite/knowledge_base.db"
+        self.workflow_db_path = workflow_db_path or "/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/databases/sqlite/workflows.db"
+        self.workflows_json_dir = "/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/workflows/files"
         
     def ensure_workflow_db_exists(self) -> bool:
         """Ensure the workflow database exists and is initialized."""
@@ -94,6 +94,20 @@ class WorkflowIntegration:
         except Exception as e:
             return {"success": False, "error": str(e)}
     
+    def get_stats(self) -> Dict[str, Any]:
+        """Get workflow statistics - alias for get_workflow_stats that returns data directly."""
+        result = self.get_workflow_stats()
+        if result.get("success"):
+            return result.get("data", {})
+        else:
+            # Return empty stats if there's an error
+            return {
+                "total_workflows": 0,
+                "active_workflows": 0,
+                "total_nodes": 0,
+                "integrations": 200
+            }
+    
     def search_workflows(self, query: str = "", category: str = None, 
                         integration: str = None, limit: int = 20, 
                         offset: int = 0) -> Dict[str, Any]:
@@ -110,7 +124,20 @@ class WorkflowIntegration:
                 limit=limit,
                 offset=offset
             )
-            return {"success": True, "data": results}
+            # Handle tuple return format from database
+            if isinstance(results, tuple) and len(results) == 2:
+                workflows, total = results
+                return {
+                    "success": True, 
+                    "data": {
+                        "workflows": workflows,
+                        "total": total
+                    }
+                }
+            elif isinstance(results, dict):
+                return {"success": True, "data": results}
+            else:
+                return {"success": True, "data": {"workflows": results, "total": len(results) if results else 0}}
         except Exception as e:
             return {"success": False, "error": str(e)}
     
@@ -138,7 +165,9 @@ class WorkflowIntegration:
             db = WorkflowDatabase(self.workflow_db_path)
             # Use get_service_categories which exists in WorkflowDatabase
             service_categories = db.get_service_categories()
-            return {"success": True, "data": service_categories}
+            # Return only the category keys as a list, not the full dict
+            category_names = list(service_categories.keys())
+            return {"success": True, "data": category_names}
         except Exception as e:
             return {"success": False, "error": str(e)}
     

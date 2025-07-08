@@ -39,7 +39,7 @@ class N8nExpertAgent:
     responses about n8n concepts, best practices, and implementation guidance.
     """
     
-    def __init__(self, data_directory: str = "data/scraped_docs"):
+    def __init__(self, data_directory: str = "/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs"):
         """
         Initialize the N8n Expert Agent.
         

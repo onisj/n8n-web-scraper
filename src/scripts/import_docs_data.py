@@ -106,7 +106,7 @@ CATEGORY_TABLE_MAP = {
 
 async def load_json_files() -> List[Dict]:
     """Load all JSON files from scraped_docs directory."""
-    scraped_docs_dir = Path("data/scraped_docs")
+    scraped_docs_dir = Path("/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs")
     
     if not scraped_docs_dir.exists():
         logger.error(f"Scraped docs directory not found: {scraped_docs_dir}")

@@ -30,12 +30,12 @@ def vector_group():
 @vector_group.command('process')
 @click.option(
     '--scraped-dir',
-    default='data/scraped_docs',
+    default='/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs',
     help='Directory containing scraped JSON files'
 )
 @click.option(
     '--vector-dir',
-    default='data/chroma_db',
+    default='/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/databases/vector',
     help='Directory for vector database storage'
 )
 @click.option(
@@ -132,7 +132,7 @@ def process_command(
 @click.argument('query')
 @click.option(
     '--vector-dir',
-    default='data/chroma_db',
+    default='/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/databases/vector',
     help='Directory for vector database storage'
 )
 @click.option(
@@ -207,12 +207,12 @@ def search_command(
 @vector_group.command('stats')
 @click.option(
     '--vector-dir',
-    default='data/chroma_db',
+    default='/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/databases/vector',
     help='Directory for vector database storage'
 )
 @click.option(
     '--scraped-dir',
-    default='data/scraped_docs',
+    default='/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs',
     help='Directory containing scraped JSON files'
 )
 @click.option(
@@ -254,12 +254,12 @@ def stats_command(
 @vector_group.command('update')
 @click.option(
     '--scraped-dir',
-    default='data/scraped_docs',
+    default='/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs',
     help='Directory containing scraped JSON files'
 )
 @click.option(
-    '--vector-dir',
-    default='data/chroma_db',
+    '--vector-dir', 
+    default='/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/databases/vector',
     help='Directory for vector database storage'
 )
 def update_command(
@@ -300,7 +300,7 @@ def update_command(
 @vector_group.command('reset')
 @click.option(
     '--vector-dir',
-    default='data/chroma_db',
+    default='/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/databases/vector',
     help='Directory for vector database storage'
 )
 @click.option(

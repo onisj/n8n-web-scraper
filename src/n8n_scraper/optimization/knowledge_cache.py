@@ -45,7 +45,7 @@ class KnowledgeCache:
                     cls._instance = super().__new__(cls)
         return cls._instance
     
-    def __init__(self, data_directory: str = "data/scraped_docs", cache_dir: str = "data/cache"):
+    def __init__(self, data_directory: str = "/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs", cache_dir: str = "/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/cache"):
         if hasattr(self, '_initialized'):
             return
             

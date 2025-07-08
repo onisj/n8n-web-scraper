@@ -12,7 +12,7 @@ from pathlib import Path
 
 def create_directory_structure():
     """Create the proper directory structure"""
-    base_dir = Path(".")
+    base_dir = Path("/Users/user/Projects/n8n-projects/n8n-web-scrapper")
     
     # Define the target structure
     directories = [
@@ -62,7 +62,7 @@ def create_directory_structure():
 
 def move_existing_files():
     """Move existing files to their proper locations"""
-    base_dir = Path(".")
+    base_dir = Path("/Users/user/Projects/n8n-projects/n8n-web-scrapper")
     
     # File mappings: current_file -> new_location
     file_mappings = {
@@ -123,7 +123,7 @@ def move_existing_files():
 
 def create_config_files():
     """Create configuration files"""
-    base_dir = Path(".")
+    base_dir = Path("/Users/user/Projects/n8n-projects/n8n-web-scrapper")
     
     # Create settings.py
     settings_content = '''"""\nConfiguration settings for n8n AI Knowledge System\n"""\n\nimport os\nfrom pathlib import Path\nfrom typing import Optional\n\n# Base paths\nBASE_DIR = Path(__file__).parent.parent\nDATA_DIR = BASE_DIR / "data"\nLOGS_DIR = BASE_DIR / "logs"\nBACKUPS_DIR = BASE_DIR / "backups"\n\n# API Configuration\nAPI_HOST = os.getenv("API_HOST", "0.0.0.0")\nAPI_PORT = int(os.getenv("API_PORT", "8000"))\nAPI_WORKERS = int(os.getenv("API_WORKERS", "1"))\n\n# Streamlit Configuration\nSTREAMLIT_HOST = os.getenv("STREAMLIT_HOST", "0.0.0.0")\nSTREAMLIT_PORT = int(os.getenv("STREAMLIT_PORT", "8501"))\n\n# AI Configuration\nOPENAI_API_KEY = os.getenv("OPENAI_API_KEY")\nAI_MODEL = os.getenv("AI_MODEL", "gpt-4")\nAI_MAX_TOKENS = int(os.getenv("AI_MAX_TOKENS", "500"))\nAI_TEMPERATURE = float(os.getenv("AI_TEMPERATURE", "0.7"))\n\n# Database Configuration\nVECTOR_DB_PATH = DATA_DIR / "vector_db"\nKNOWLEDGE_DB_PATH = DATA_DIR / "knowledge.db"\n\n# Scraping Configuration\nSCRAPER_BASE_URL = "https://docs.n8n.io"\nSCRAPER_MAX_PAGES = int(os.getenv("SCRAPER_MAX_PAGES", "1000"))\nSCRAPER_DELAY = float(os.getenv("SCRAPER_DELAY", "1.0"))\nSCRAPER_TIMEOUT = int(os.getenv("SCRAPER_TIMEOUT", "30"))\n\n# Update Configuration\nUPDATE_FREQUENCY = os.getenv("UPDATE_FREQUENCY", "daily")\nFULL_SCRAPE_FREQUENCY = os.getenv("FULL_SCRAPE_FREQUENCY", "weekly")\nBACKUP_RETENTION_DAYS = int(os.getenv("BACKUP_RETENTION_DAYS", "30"))\n\n# Logging Configuration\nLOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")\nLOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"\nLOG_FILE = LOGS_DIR / "system.log"\n\n# Security Configuration\nAPI_KEY: Optional[str] = os.getenv("API_KEY")\nCORS_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")\n\n# Performance Configuration\nCACHE_TTL = int(os.getenv("CACHE_TTL", "3600"))  # 1 hour\nMAX_CONCURRENT_REQUESTS = int(os.getenv("MAX_CONCURRENT_REQUESTS", "10"))\n\n# Ensure directories exist\nfor directory in [DATA_DIR, LOGS_DIR, BACKUPS_DIR, VECTOR_DB_PATH.parent]:\n    directory.mkdir(parents=True, exist_ok=True)\n'''
@@ -148,7 +148,7 @@ def create_config_files():
 
 def create_api_structure():
     """Create API route structure"""
-    base_dir = Path(".")
+    base_dir = Path("/Users/user/Projects/n8n-projects/n8n-web-scrapper")
     
     # Create routes/__init__.py
     routes_init = '''"""\nAPI Routes package\n"""\n\nfrom .ai_routes import router as ai_router\nfrom .knowledge_routes import router as knowledge_router\nfrom .system_routes import router as system_router\n\n__all__ = ["ai_router", "knowledge_router", "system_router"]\n'''
@@ -166,7 +166,7 @@ def create_api_structure():
 
 def create_database_structure():
     """Create database structure files"""
-    base_dir = Path(".")
+    base_dir = Path("/Users/user/Projects/n8n-projects/n8n-web-scrapper")
     
     # Create vector_db.py
     vector_db_content = '''"""\nVector Database Management\n"""\n\nfrom typing import List, Dict, Any, Optional\nfrom pathlib import Path\nimport chromadb\nfrom chromadb.config import Settings\n\nclass VectorDatabase:\n    """Vector database for storing and retrieving knowledge embeddings"""\n    \n    def __init__(self, db_path: Path, collection_name: str = "n8n_knowledge"):\n        self.db_path = db_path\n        self.collection_name = collection_name\n        self.client = None\n        self.collection = None\n        \n    def initialize(self):\n        """Initialize the vector database"""\n        self.db_path.mkdir(parents=True, exist_ok=True)\n        \n        self.client = chromadb.PersistentClient(\n            path=str(self.db_path),\n            settings=Settings(anonymized_telemetry=False)\n        )\n        \n        self.collection = self.client.get_or_create_collection(\n            name=self.collection_name\n        )\n        \n    def add_documents(self, documents: List[str], metadatas: List[Dict], ids: List[str]):\n        """Add documents to the vector database"""\n        if not self.collection:\n            raise RuntimeError("Database not initialized")\n            \n        self.collection.add(\n            documents=documents,\n            metadatas=metadatas,\n            ids=ids\n        )\n        \n    def search(self, query: str, n_results: int = 10) -> List[Dict[str, Any]]:\n        """Search for similar documents"""\n        if not self.collection:\n            raise RuntimeError("Database not initialized")\n            \n        results = self.collection.query(\n            query_texts=[query],\n            n_results=n_results\n        )\n        \n        return results\n        \n    def get_stats(self) -> Dict[str, Any]:\n        """Get database statistics"""\n        if not self.collection:\n            return {"error": "Database not initialized"}\n            \n        count = self.collection.count()\n        return {\n            "total_documents": count,\n            "collection_name": self.collection_name\n        }\n'''
@@ -181,7 +181,7 @@ def update_imports_and_references():
     
     # This would require parsing and updating Python files
     # For now, just create a note file
-    base_dir = Path(".")
+    base_dir = Path("/Users/user/Projects/n8n-projects/n8n-web-scrapper")
     
     update_notes = '''# Import Updates Required\n\nAfter restructuring, the following files need import updates:\n\n## api/main.py (formerly api_server.py)\n- Update imports to use new structure:\n  ```python\n  from agents.n8n_agent import N8nExpertAgent\n  from agents.knowledge_processor import N8nKnowledgeProcessor\n  from automation.update_scheduler import AutomatedUpdater\n  from automation.change_detector import N8nDocsAnalyzer\n  ```\n\n## web_interface/streamlit_app.py\n- Update imports:\n  ```python\n  from agents.n8n_agent import N8nExpertAgent\n  from agents.knowledge_processor import N8nKnowledgeProcessor\n  from automation.update_scheduler import AutomatedUpdater\n  from automation.change_detector import N8nDocsAnalyzer\n  ```\n\n## start_system.py\n- Update module paths in subprocess calls\n- Update file paths for moved components\n\n## Docker and deployment files\n- Update COPY commands in Dockerfile\n- Update volume mounts in docker-compose.yml\n'''
     

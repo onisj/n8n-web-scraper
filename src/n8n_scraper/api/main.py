@@ -119,6 +119,17 @@ async def startup_event():
         await cache.connect()
         logger.info("Redis cache initialized")
         
+        # Initialize workflow integration
+        from ..workflow_integration import get_workflow_integration
+        workflow_integration = get_workflow_integration()
+        setup_result = workflow_integration.setup_integration()
+        if setup_result.get("success"):
+            stats = setup_result.get("stats", {})
+            total_workflows = stats.get("total_workflows", 0)
+            logger.info(f"Workflow integration initialized: {total_workflows} workflows loaded")
+        else:
+            logger.warning(f"Workflow integration setup had issues: {setup_result.get('results', [])}")
+        
         # Initialize agents through manager (prevents duplicate loading)
         agent_manager.get_expert_agent()
         agent_manager.get_knowledge_processor()

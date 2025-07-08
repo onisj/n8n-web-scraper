@@ -98,7 +98,7 @@ console = Console()
 )
 @click.option(
     '--vector-dir',
-    default='data/chroma_db',
+    default='/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/databases/vector',
     help='Directory for vector database storage'
 )
 @click.option(
@@ -296,7 +296,7 @@ async def _save_results(results: List[Any],
         console.print("[cyan]Processing scraped data into vector database...[/cyan]")
         try:
             # Convert results to JSON format for processing
-            scraped_data_dir = output or Path("data/scraped_docs")
+            scraped_data_dir = output or Path("/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs")
             scraped_data_dir.mkdir(parents=True, exist_ok=True)
             
             # Save results as JSON files first

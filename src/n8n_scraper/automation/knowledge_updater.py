@@ -35,10 +35,11 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class PageData:
-    """Data structure for storing scraped page information"""
+    """Data structure for scraped page information"""
     url: str
     title: str
     content: str
+    content_html: str  # New field for HTML content
     headings: List[str]
     links: List[str]
     code_blocks: List[str]
@@ -106,13 +107,14 @@ class N8nDocsScraper:
         title_elem = soup.find('title')
         title = title_elem.get_text().strip() if title_elem else "No Title"
         
-        # Extract main content (try different selectors)
+        # Extract main content (try different selectors in order of preference)
         content_selectors = [
-            'main',
+            'article',
+            '.markdown-body',
             '.content',
             '.documentation',
-            '.markdown-body',
-            'article',
+            'main .content',
+            'main',
             '.page-content'
         ]
         
@@ -125,13 +127,62 @@ class N8nDocsScraper:
         if not main_content:
             main_content = soup.find('body')
         
-        # Extract text content
+        # Extract content with HTML formatting preserved
         content_text = ""
+        content_html = ""
         if main_content:
-            # Remove script and style elements
-            for script in main_content(["script", "style", "nav", "header", "footer"]):
-                script.decompose()
-            content_text = main_content.get_text(separator='\n', strip=True)
+            # Create a copy to avoid modifying the original
+            content_copy = BeautifulSoup(str(main_content), 'html.parser')
+            
+            # Remove unwanted elements more aggressively
+            unwanted_selectors = [
+                'script', 'style', 'nav', 'header', 'footer',
+                '.sidebar', '.navigation', '.nav', '.menu',
+                '.breadcrumb', '.breadcrumbs', '.toc', '.table-of-contents',
+                '.edit-page', '.edit-link', '.github-link',
+                '.prev-next', '.pagination', '.page-nav',
+                '.search', '.search-box', '.search-form',
+                '.banner', '.alert', '.notice', '.warning',
+                '.feedback', '.rating', '.social-share',
+                '.related-links', '.see-also', '.external-links',
+                '[role="navigation"]', '[role="banner"]', '[role="complementary"]',
+                '.hidden', '.sr-only', '.visually-hidden'
+            ]
+            
+            for selector in unwanted_selectors:
+                for element in content_copy.select(selector):
+                    element.decompose()
+            
+            # Remove elements with specific classes that indicate navigation/UI
+            for element in content_copy.find_all(class_=True):
+                classes = ' '.join(element.get('class', []))
+                if any(keyword in classes.lower() for keyword in ['nav', 'menu', 'sidebar', 'header', 'footer', 'breadcrumb']):
+                    element.decompose()
+            
+            # Clean up attributes to reduce HTML size
+            for element in content_copy.find_all():
+                # Keep only essential attributes
+                attrs_to_keep = ['href', 'src', 'alt', 'title', 'id']
+                if element.name in ['code', 'pre']:
+                    attrs_to_keep.extend(['class', 'data-language'])
+                if element.name in ['img']:
+                    attrs_to_keep.extend(['width', 'height'])
+                
+                # Remove all other attributes
+                attrs = dict(element.attrs)
+                for attr in attrs:
+                    if attr not in attrs_to_keep:
+                        del element.attrs[attr]
+            
+            # Get cleaned HTML content
+            content_html = str(content_copy)
+            
+            # Also extract plain text for search and word count
+            content_text = content_copy.get_text(separator='\n', strip=True)
+        else:
+            # Fallback to full body content
+            content_html = str(soup.find('body') or soup)
+            content_text = soup.get_text(separator='\n', strip=True)
         
         # Extract headings
         headings = []
@@ -190,6 +241,7 @@ class N8nDocsScraper:
             url=url,
             title=title,
             content=content_text,
+            content_html=content_html,
             headings=headings,
             links=links,
             code_blocks=code_blocks,

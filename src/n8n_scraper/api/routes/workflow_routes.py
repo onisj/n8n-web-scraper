@@ -116,17 +116,21 @@ async def get_workflow_stats():
                 reverse=True
             )[:10]
             
-            return WorkflowAnalytics(
-                total_workflows=stats.get("total_workflows", 0),
-                categories_count=len(stats.get("categories", [])),
-                integrations_count=len(integration_counts),
-                avg_nodes_per_workflow=round(avg_nodes, 2),
-                most_used_integrations=[
+            return {
+                "total_workflows": stats.get("total", 0),
+                "categories_count": len(stats.get("triggers", {})),
+                "integrations_count": stats.get("unique_integrations", 0),
+                "avg_nodes_per_workflow": round(stats.get("total_nodes", 0) / max(stats.get("total", 1), 1), 2),
+                "most_used_integrations": [
                     {"name": name, "count": count} for name, count in top_integrations
                 ],
-                complexity_distribution=complexity_dist,
-                last_updated=datetime.now().isoformat()
-            )
+                "complexity_distribution": {
+                    "simple": stats.get("complexity", {}).get("low", 0),
+                    "medium": stats.get("complexity", {}).get("medium", 0),
+                    "complex": stats.get("complexity", {}).get("high", 0)
+                },
+                "last_updated": stats.get("last_indexed", datetime.now().isoformat())
+            }
         else:
             raise HTTPException(status_code=500, detail=result.get("error", "Unknown error"))
     except Exception as e:

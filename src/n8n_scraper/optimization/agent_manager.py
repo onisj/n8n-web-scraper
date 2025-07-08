@@ -41,7 +41,7 @@ class AgentManager:
         
         logger.info("Agent manager initialized")
     
-    def get_expert_agent(self, data_directory: str = "data/scraped_docs") -> N8nExpertAgent:
+    def get_expert_agent(self, data_directory: str = "/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs") -> N8nExpertAgent:
         """Get or create the expert agent instance"""
         if self._expert_agent is None:
             with self._initialization_lock:
@@ -60,7 +60,7 @@ class AgentManager:
         
         return self._expert_agent
     
-    def get_knowledge_processor(self, data_directory: str = "data/scraped_docs") -> N8nKnowledgeProcessor:
+    def get_knowledge_processor(self, data_directory: str = "/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs") -> N8nKnowledgeProcessor:
         """Get or create the knowledge processor instance"""
         if self._knowledge_processor is None:
             with self._initialization_lock:
@@ -71,7 +71,7 @@ class AgentManager:
         
         return self._knowledge_processor
     
-    def get_knowledge_cache(self, data_directory: str = "data/scraped_docs") -> KnowledgeCache:
+    def get_knowledge_cache(self, data_directory: str = "/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs") -> KnowledgeCache:
         """Get or create the knowledge cache instance"""
         if self._knowledge_cache is None:
             with self._initialization_lock:
@@ -110,7 +110,7 @@ class AgentManager:
 class OptimizedN8nExpertAgent(N8nExpertAgent):
     """Optimized version of N8nExpertAgent with caching and performance improvements"""
     
-    def __init__(self, data_directory: str = "data/scraped_docs"):
+    def __init__(self, data_directory: str = "/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs"):
         # Initialize parent class first to set knowledge_base attribute
         super().__init__(data_directory)
         
@@ -151,14 +151,14 @@ def get_agent_manager() -> AgentManager:
     """Get the global agent manager instance"""
     return _agent_manager
 
-def get_expert_agent(data_directory: str = "data/scraped_docs") -> N8nExpertAgent:
+def get_expert_agent(data_directory: str = "/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs") -> N8nExpertAgent:
     """Get the expert agent instance (convenience function)"""
     return _agent_manager.get_expert_agent(data_directory)
 
-def get_knowledge_processor(data_directory: str = "data/scraped_docs") -> N8nKnowledgeProcessor:
+def get_knowledge_processor(data_directory: str = "/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs") -> N8nKnowledgeProcessor:
     """Get the knowledge processor instance (convenience function)"""
     return _agent_manager.get_knowledge_processor(data_directory)
 
-def get_knowledge_cache(data_directory: str = "data/scraped_docs") -> KnowledgeCache:
+def get_knowledge_cache(data_directory: str = "/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs") -> KnowledgeCache:
     """Get the knowledge cache instance (convenience function)"""
     return _agent_manager.get_knowledge_cache(data_directory)

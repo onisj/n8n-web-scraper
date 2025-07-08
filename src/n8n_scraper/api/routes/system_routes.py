@@ -71,7 +71,7 @@ async def get_system_status():
     """Get comprehensive system status"""
     try:
         # Count knowledge base files
-        data_dir = Path("data/scraped_docs")
+        data_dir = Path("/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/scraped_docs")
         kb_size = len(list(data_dir.glob("*.json"))) if data_dir.exists() else 0
         
         # Get last update time

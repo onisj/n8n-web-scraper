@@ -64,8 +64,8 @@ class MonitoringDashboard:
     
     def __init__(self):
         self.db_connection_string = self._get_db_connection_string()
-        self.data_dir = Path(os.getenv('DATA_DIRECTORY', './data'))
-        self.logs_dir = Path(os.getenv('LOGS_DIRECTORY', './logs'))
+        self.data_dir = Path(os.getenv('DATA_DIRECTORY', '/Users/user/Projects/n8n-projects/n8n-web-scrapper/data'))
+        self.logs_dir = Path(os.getenv('LOGS_DIRECTORY', '/Users/user/Projects/n8n-projects/n8n-web-scrapper/logs'))
         self.last_run_file = self.data_dir / "last_automation_run.json"
         
     def _get_db_connection_string(self) -> str:
