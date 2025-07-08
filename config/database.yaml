@@ -1,13 +1,13 @@
 # Database Configuration
 vector_db:
   provider: "chromadb"
-  path: "../data/vector_db"
+  path: "/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/databases/vector"
   collection_name: "n8n_knowledge"
   embedding_model: "text-embedding-ada-002"
 
 knowledge_db:
   provider: "sqlite"
-  path: "../data/knowledge.db"
+  path: "/Users/user/Projects/n8n-projects/n8n-web-scrapper/data/databases/sqlite/knowledge.db"
   tables:
     - documents
     - chunks
