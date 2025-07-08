@@ -759,6 +759,44 @@ n8n-web-scraper/
 
 ## 🔧 Configuration
 
+### Database Setup
+
+#### PostgreSQL Setup
+
+The system uses PostgreSQL as the primary database. You have several options for setup:
+
+**Option 1: Automated Docker Setup (Recommended for Development)**
+```bash
+# Run the automated PostgreSQL setup script
+./scripts/setup_postgres_docker.sh
+
+# Test the connection
+./scripts/test_postgres_connection.py
+```
+
+**Option 2: Manual Installation**
+Refer to the comprehensive [PostgreSQL Setup Guide](docs/POSTGRESQL_SETUP_GUIDE.md) for detailed installation instructions for your operating system.
+
+**Option 3: Use Existing PostgreSQL Server**
+Update your `.env` file with your existing PostgreSQL connection details.
+
+#### Database Migration
+
+If you're upgrading from a previous version or setting up in a new environment, use the database migration script:
+
+```bash
+# Migrate existing databases to new centralized structure
+python scripts/migrate_database_structure.py
+```
+
+This script will:
+- Create the new centralized database directory structure (`./data/databases/`)
+- Migrate SQLite databases from `data/workflows/database/` to `data/databases/sqlite/`
+- Migrate ChromaDB from `data/chroma_db/` to `data/databases/vector/`
+- Verify the migration process
+
+For detailed information about the database consolidation, see [Database Consolidation Guide](docs/DATABASE_CONSOLIDATION.md).
+
 ### Environment Variables
 
 The system supports multiple configuration methods depending on your deployment:
@@ -776,23 +814,35 @@ API_HOST=0.0.0.0
 API_PORT=8000
 FRONTEND_PORT=3000
 
-# Database Configuration
+# PostgreSQL Database Configuration
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_DB=n8n_scraper_dev
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/n8n_scraper_dev
+DATABASE_URL_ASYNC=postgresql+asyncpg://postgres:postgres@localhost:5432/n8n_scraper_dev
+
+# Database Pool Configuration
+DATABASE_POOL_SIZE=10
+DATABASE_MAX_OVERFLOW=20
+DATABASE_POOL_TIMEOUT=30
+DATABASE_POOL_RECYCLE=3600
 
 # Redis Configuration
 REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_PASSWORD=
 REDIS_DB=0
+REDIS_MAX_CONNECTIONS=100
+REDIS_RETRY_ON_TIMEOUT=true
+REDIS_SOCKET_KEEPALIVE=true
 
 # ChromaDB Configuration
 CHROMA_HOST=localhost
 CHROMA_PORT=8001
-CHROMA_PERSIST_DIRECTORY=./data/chroma
+CHROMA_PERSIST_DIRECTORY=./data/databases/vector
+VECTOR_DB_DIR=./data/databases/vector
 
 # AI Provider Configuration
 OPENAI_API_KEY=your_openai_api_key_here

@@ -163,12 +163,18 @@ cython_debug/
 data/scraped_docs/
 data/vector_db/
 data/exports/*.csv
-data/logs/*.log
+data/logs/
 data/analysis/*.json
 data/analysis/*.txt
+data/backups/
+data/workflows/
+data/scraped_docs/
+data/workflows/backups/
+data/cache/
+frontend/
 
 # Backup directories
-backups/
+backup/
 exports/
 logs/
 
@@ -218,3 +224,34 @@ uv.lock
 local_config.py
 test_data/
 debug_output/
+frontend/node_modules/
+
+# Terraform
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+.terraform.tfstate.lock.info
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# docs
+docs/deployment.md
+docs/development_testing.md
+docs/implementation_guide.md
+docs/MODERNIZATION_README.md
+docs/PERFORMANCE_OPTIMIZATION.md
+docs/api_updates.txt
+docs/restruct.md
+docs/SYSTEM_GUIDE.md
+docs/TRAE_INTEGRATION_DEPLOYMENT.md
+docs/WEB_MODERNIZATION_PLAN.md
+docs/WORKFLOW_MANAGEMENT_README.md
